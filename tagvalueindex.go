@@ -10,11 +10,18 @@ import (
 type TagValueIndex struct {
 	SubNodes []Node
 	NodeList []uint32
+	Data     string
+	IsEnd    bool
 }
 
 type Node struct {
 	Str  string
 	Tree *TagValueIndex
+}
+
+type TagNodePair struct {
+	str      string
+	nodeList []uint32
 }
 
 // New returns an empty prefix Tree.
@@ -23,11 +30,16 @@ func NewTagValueIndex() *TagValueIndex {
 }
 
 // FindAllMatchedNodes searches the prefix Tree for all strings that uniquely matches the prefix.
-func (t *TagValueIndex) FindAllMatchedNodes(prefix string) (nodeList []uint32, err error) {
+func (t *TagValueIndex) FindAllMatchedNodes(prefix string) (nodeList []TagNodePair, err error) {
 outerLoop:
 	for {
 		if len(prefix) == 0 || prefix[0] == '*' {
-			nodeList = t.NodeList
+			if t.IsEnd {
+				nodeList = append(nodeList, TagNodePair{
+					str:      t.Data,
+					nodeList: t.NodeList,
+				})
+			}
 			for _, n := range t.SubNodes {
 				nodeList = append(nodeList, n.getAllSubNodeList()...)
 			}
@@ -61,12 +73,15 @@ outerLoop:
 
 // AddTagValue a string and single one NodeList to the prefix Tree.
 func (t *TagValueIndex) AddTagValue(tagValue string, nodeValue uint32) {
+	originTag := tagValue
 outerLoop:
 	for {
 
 		// consumed the entire string
 		if len(tagValue) == 0 {
+			t.IsEnd = true
 			t.NodeList = append(t.NodeList, nodeValue)
+			t.Data = originTag
 			break outerLoop
 		}
 
@@ -95,7 +110,7 @@ outerLoop:
 
 		// No split necessary, insert a new Node and subtree.
 		if splitNode == nil {
-			subtree := &TagValueIndex{NodeList: []uint32{nodeValue}}
+			subtree := &TagValueIndex{NodeList: []uint32{nodeValue}, IsEnd: true, Data: originTag}
 			t.SubNodes = append(t.SubNodes[:ix],
 				append([]Node{{tagValue, subtree}}, t.SubNodes[ix:]...)...)
 			break outerLoop
@@ -135,13 +150,17 @@ func DecodeBytesToTagValueIndex(s []byte) TagValueIndex {
 
 ////////////////////////////////////   Inner Functions   //////////////////////////////////////////////////
 
-func (n *Node) getAllSubNodeList() (data []uint32) {
-	res := n.Tree.NodeList
-	for _, subnode := range n.Tree.SubNodes {
-		subres := subnode.getAllSubNodeList()
-		res = append(res, subres...)
+func (n *Node) getAllSubNodeList() (data []TagNodePair) {
+	if n.Tree.IsEnd {
+		data = append(data, TagNodePair{
+			str:      n.Tree.Data,
+			nodeList: n.Tree.NodeList,
+		})
 	}
-	return res
+	for _, subnode := range n.Tree.SubNodes {
+		data = append(data, subnode.getAllSubNodeList()...)
+	}
+	return data
 }
 
 func minInt(a, b int) int {
