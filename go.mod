@@ -4,6 +4,8 @@ go 1.17
 
 require go.etcd.io/etcd/client/v3 v3.5.2
 
+require github.com/go-zookeeper/zk v1.0.2
+
 require (
 	github.com/coreos/go-semver v0.3.0 // indirect
 	github.com/coreos/go-systemd/v22 v22.3.2 // indirect
