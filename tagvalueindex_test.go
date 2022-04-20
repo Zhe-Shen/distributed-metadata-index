@@ -29,8 +29,10 @@ func TestBasic(t *testing.T) {
 	for _, prefix := range []string{
 		"a",
 		"a*",
+		"amd",
+		"int",
 		"intel",
-		"inte*",
+		"intel*",
 		"intel-i7",
 		"intel-i9",
 	} {
