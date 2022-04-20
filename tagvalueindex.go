@@ -41,10 +41,7 @@ outerLoop:
 				})
 				return nodeList, nil
 			} else {
-				for _, n := range t.SubNodes {
-					nodeList = append(nodeList, n.getAllSubNodeList()...)
-				}
-				return nodeList, nil
+				return []TagNodePair{}, nil
 			}
 		} else if prefix[0] == '*' {
 			if t.IsEnd {
@@ -75,9 +72,16 @@ outerLoop:
 				// Full Node match, so proceed down subtree.
 				t, prefix = cur_node.Tree, prefix[m:]
 				continue outerLoop
-			case m == len(prefix) || (m == len(prefix)-1 && prefix[len(prefix)-1] == '*'):
+			case m == len(prefix)-1 && prefix[len(prefix)-1] == '*':
 				nodeList = cur_node.getAllSubNodeList()
 				return nodeList, nil
+			case m == len(prefix):
+				if t.IsEnd {
+					nodeList = cur_node.getAllSubNodeList()
+					return nodeList, nil
+				} else {
+					return []TagNodePair{}, nil
+				}
 			}
 		}
 		return nil, nil
