@@ -31,7 +31,6 @@ outerLoop:
 			for _, n := range t.SubNodes {
 				nodeList = append(nodeList, n.getAllSubNodeList()...)
 			}
-			nodeList = removeDuplication(nodeList)
 			return nodeList, nil
 		}
 
@@ -142,23 +141,7 @@ func (n *Node) getAllSubNodeList() (data []uint32) {
 		subres := subnode.getAllSubNodeList()
 		res = append(res, subres...)
 	}
-	res = removeDuplication(res)
 	return res
-}
-
-func removeDuplication(arr []uint32) []uint32 {
-	set := make(map[uint32]struct{}, len(arr))
-	j := 0
-	for _, v := range arr {
-		_, ok := set[v]
-		if ok {
-			continue
-		}
-		set[v] = struct{}{}
-		arr[j] = v
-		j++
-	}
-	return arr[:j]
 }
 
 func minInt(a, b int) int {
