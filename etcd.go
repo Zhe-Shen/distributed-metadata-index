@@ -2,8 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
-	"strings"
 	"time"
 
 	clientv3 "go.etcd.io/etcd/client/v3"
@@ -59,6 +57,7 @@ func GetIndex(tagName string) ([]byte, error) {
 	return res, nil
 }
 
+/*
 // SearchWithTrueValue searches etcd with specified tagName and tagValue
 func SearchWithTrueValue(tagName string, tagValue string) (string, error) {
 	indexBytes, err := GetIndex(tagName)
@@ -90,3 +89,4 @@ func SearchWithPrefix(tagName string, prefix string) ([]string, error) {
 	}
 	return res, nil
 }
+*/
