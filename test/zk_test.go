@@ -18,7 +18,7 @@ func CleanupZk() {
 	}
 }
 
-func TestBasic(t *testing.T) {
+func TestZkBasic(t *testing.T) {
 	client, _ := zk.CreateZkClient()
 
 	err := client.AddTagName("abc")

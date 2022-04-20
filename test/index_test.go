@@ -1,13 +1,14 @@
-package main
+package test
 
 import (
+	dmi "distributed-metadata-index/pkg"
 	"fmt"
 	"testing"
 )
 
-func TestBasic(t *testing.T) {
+func TestIndexBasic(t *testing.T) {
 
-	tree := NewTagValueIndex()
+	tree := dmi.NewTagValueIndex()
 
 	// add new tag value
 	tree.AddTagValue("intel", 0)
@@ -18,10 +19,18 @@ func TestBasic(t *testing.T) {
 	tree.AddTagValue("amd", 3)
 
 	// convert TagValueIndex to bytes
-	treeb := EncodeTagValueIndexToBytes(tree)
+	treeb := dmi.EncodeTagValueIndexToBytes(tree)
+	err := dmi.PutIndex("cpu", treeb)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
 
+	treeb, err = dmi.GetIndex("cpu")
+	if err != nil {
+		t.Errorf(err.Error())
+	}
 	// convert bytes to TagValueIndex
-	treed := DecodeBytesToTagValueIndex(treeb)
+	treed := dmi.DecodeBytesToTagValueIndex(treeb)
 
 	fmt.Printf("%-18s %-8s %s\n", "prefix", "data", "error")
 	fmt.Printf("%-18s %-8s %s\n", "------", "----", "-----")
