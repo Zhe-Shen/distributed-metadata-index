@@ -33,7 +33,17 @@ func NewTagValueIndex() *TagValueIndex {
 func (t *TagValueIndex) FindAllMatchedNodes(prefix string) (nodeList []TagNodePair, err error) {
 outerLoop:
 	for {
-		if len(prefix) == 0 || prefix[0] == '*' {
+		if len(prefix) == 0 {
+			if t.IsEnd {
+				nodeList = append(nodeList, TagNodePair{
+					str:      t.Data,
+					nodeList: t.NodeList,
+				})
+				return nodeList, nil
+			} else {
+				return []TagNodePair{}, nil
+			}
+		} else if prefix[0] == '*' {
 			if t.IsEnd {
 				nodeList = append(nodeList, TagNodePair{
 					str:      t.Data,
@@ -62,9 +72,16 @@ outerLoop:
 				// Full Node match, so proceed down subtree.
 				t, prefix = cur_node.Tree, prefix[m:]
 				continue outerLoop
-			case m == len(prefix) || (m == len(prefix)-1 && prefix[len(prefix)-1] == '*'):
+			case m == len(prefix)-1 && prefix[len(prefix)-1] == '*':
 				nodeList = cur_node.getAllSubNodeList()
 				return nodeList, nil
+			case m == len(prefix):
+				if t.IsEnd {
+					nodeList = cur_node.getAllSubNodeList()
+					return nodeList, nil
+				} else {
+					return []TagNodePair{}, nil
+				}
 			}
 		}
 		return nil, nil

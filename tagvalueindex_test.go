@@ -27,10 +27,13 @@ func TestBasic(t *testing.T) {
 	fmt.Printf("%-18s %-8s %s\n", "------", "----", "-----")
 
 	for _, prefix := range []string{
+		"c",
 		"a",
 		"a*",
+		"amd",
+		"int",
 		"intel",
-		"inte*",
+		"intel*",
 		"intel-i7",
 		"intel-i9",
 	} {
