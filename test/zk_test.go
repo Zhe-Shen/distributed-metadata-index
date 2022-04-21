@@ -34,13 +34,41 @@ func TestZkBasic(t *testing.T) {
 		t.Errorf("error while AddTagName, err: %v\n", err)
 	}
 
-	results, err := client.SearchTagName("aiden")
+	results, err := client.SearchTagName("a")
 	if err != nil {
 		t.Errorf("error while SearchTagName, err: %v\n", err)
 	}
 
 	if len(results) != 1 || results[0] != "aiden" {
 		t.Errorf("wrong result, expect: ['aiden'], actual: %v\n", results)
+	}
+
+	t.Cleanup(CleanupZk)
+}
+
+func TestWildCard(t *testing.T) {
+	client, _ := zk.CreateZkClient()
+
+	err := client.AddTagName("cpu")
+	if err != nil {
+		t.Errorf("error while AddTagName, err: %v\n", err)
+	}
+	err = client.AddTagName("cpa")
+	if err != nil {
+		t.Errorf("error while AddTagName, err: %v\n", err)
+	}
+	err = client.AddTagName("efg")
+	if err != nil {
+		t.Errorf("error while AddTagName, err: %v\n", err)
+	}
+
+	results, err := client.SearchTagName("cp*")
+	if err != nil {
+		t.Errorf("error while SearchTagName, err: %v\n", err)
+	}
+
+	if len(results) != 2 {
+		t.Errorf("wrong result, expect: ['cpu', 'cpa], actual: %v\n", results)
 	}
 
 	t.Cleanup(CleanupZk)
