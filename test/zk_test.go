@@ -1,6 +1,7 @@
 package test
 
 import (
+	"fmt"
 	"sync"
 	"testing"
 
@@ -11,10 +12,9 @@ import (
 // the Zookeeper directory after each test.
 func CleanupZk() {
 	zkConn, _ := zk.ConnectZk(zk.ZkAddr)
-	zkConn.Delete(zk.TagNameTriePath, -1)
-	children, _, _ := zkConn.Children(zk.TagNameTriePath)
-	for _, c := range children {
-		zkConn.Delete(c, -1)
+	err := zk.DeleteZkRoot(zk.TagNameTriePath, zkConn)
+	if err != nil {
+		fmt.Printf("error while deleting root, err: %v\n", err)
 	}
 }
 
@@ -34,7 +34,7 @@ func TestZkBasic(t *testing.T) {
 		t.Errorf("error while AddTagName, err: %v\n", err)
 	}
 
-	results, err := client.SearchTagName("a")
+	results, err := client.SearchTagName("aiden")
 	if err != nil {
 		t.Errorf("error while SearchTagName, err: %v\n", err)
 	}
