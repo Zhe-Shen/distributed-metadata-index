@@ -5,21 +5,21 @@ import (
 	"sync"
 	"testing"
 
-	zk "distributed-metadata-index/pkg"
+	dmi "distributed-metadata-index/pkg"
 )
 
 // CleanupZk ensures that tests can be run one after another by clearing
 // the Zookeeper directory after each test.
 func CleanupZk() {
-	zkConn, _ := zk.ConnectZk(zk.ZkAddr)
-	err := zk.DeleteZkRoot(zk.TagNameTriePath, zkConn)
+	zkConn, _ := dmi.ConnectZk(dmi.ZkAddr)
+	err := dmi.DeleteZkRoot(dmi.TagNameTriePath, zkConn)
 	if err != nil {
 		fmt.Printf("error while deleting root, err: %v\n", err)
 	}
 }
 
 func TestZkBasic(t *testing.T) {
-	client, _ := zk.CreateZkClient()
+	client, _ := dmi.CreateZkClient()
 
 	err := client.AddTagName("abc")
 	if err != nil {
@@ -47,7 +47,7 @@ func TestZkBasic(t *testing.T) {
 }
 
 func TestWildCard(t *testing.T) {
-	client, _ := zk.CreateZkClient()
+	client, _ := dmi.CreateZkClient()
 
 	err := client.AddTagName("cpu")
 	if err != nil {
@@ -81,7 +81,7 @@ func TestConcurrentAdd(t *testing.T) {
 	for i := 0; i < numClients; i++ {
 		wg.Add(1)
 		go func(idx int) {
-			zc, err := zk.CreateZkClient()
+			zc, err := dmi.CreateZkClient()
 			if err != nil {
 				t.Error(err)
 			}
@@ -94,8 +94,8 @@ func TestConcurrentAdd(t *testing.T) {
 	}
 	wg.Wait()
 
-	zc, _ := zk.CreateZkClient()
-	allTagNames, err := zc.SearchAllTagName(zk.TagNameTriePath, nil)
+	zc, _ := dmi.CreateZkClient()
+	allTagNames, err := zc.SearchAllTagName(dmi.TagNameTriePath, nil)
 	if err != nil {
 		t.Error(err)
 	}
