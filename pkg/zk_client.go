@@ -2,13 +2,15 @@ package pkg
 
 import (
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/go-zookeeper/zk"
 )
 
 const endOfWordNode = "eow"
+
+const ASTERISK_WILDCARD = '*' // matches zero or more characters
+const DOT_WILDCARD = '?'      // matches any single character
 
 // ConnectZk sets up a zookeeper connection
 func ConnectZk(zkAddr string) (*zk.Conn, error) {
@@ -82,6 +84,8 @@ func (zc *ZkClient) AddTagName(tagName string) error {
 			}
 		}
 
+		// Fine-grained Locking: lock-crabbing
+		// release parentLock after childLock is acquired
 		childLock, err := CreateDistLock(curPath, zc.zkConn)
 		if err != nil {
 			parentLock.Release()
@@ -123,6 +127,7 @@ func (zc *ZkClient) SearchTagName(regexp string) (results []string, err error) {
 	return zc.searchTagNameFromParent(TagNameTriePath, nil, regexp)
 }
 
+// A recursive function that supports *-wildcard and ?-wildcard search in a Trie data structure
 func (zc *ZkClient) searchTagNameFromParent(parent string, parentLock *DistLock, regexp string) (results []string, err error) {
 	if parentLock == nil {
 		parentLock, err = CreateDistLock(parent, zc.zkConn)
@@ -135,7 +140,7 @@ func (zc *ZkClient) searchTagNameFromParent(parent string, parentLock *DistLock,
 	if len(regexp) == 0 {
 		exists, _, err := zc.zkConn.Exists(JoinPath(parent, endOfWordNode))
 		if exists {
-			results = append(results, getTagNameFromPath(parent))
+			results = append(results, GetTagNameFromPath(parent))
 		}
 		parentLock.Release()
 		return results, err
@@ -143,7 +148,7 @@ func (zc *ZkClient) searchTagNameFromParent(parent string, parentLock *DistLock,
 
 	character := regexp[0]
 	switch character {
-	case '*':
+	case ASTERISK_WILDCARD:
 		children, _, err := zc.zkConn.Children(parent)
 		if err != nil {
 			parentLock.Release()
@@ -159,7 +164,7 @@ func (zc *ZkClient) searchTagNameFromParent(parent string, parentLock *DistLock,
 
 		for _, child := range children {
 			// future improvement: goroutine
-			if child == "lock" || child == endOfWordNode {
+			if child == lockParentNode || child == endOfWordNode {
 				continue
 			}
 
@@ -172,9 +177,10 @@ func (zc *ZkClient) searchTagNameFromParent(parent string, parentLock *DistLock,
 			results = append(results, wildCardMatchesResults...)
 		}
 
+		// for wildcards, we will not release parentLock until all children are traversed
 		parentLock.Release()
 
-	case '?':
+	case DOT_WILDCARD:
 		children, _, err := zc.zkConn.Children(parent)
 		if err != nil {
 			parentLock.Release()
@@ -183,7 +189,7 @@ func (zc *ZkClient) searchTagNameFromParent(parent string, parentLock *DistLock,
 
 		for _, child := range children {
 			// future improvement: goroutine
-			if child == "lock" || child == endOfWordNode {
+			if child == lockParentNode || child == endOfWordNode {
 				continue
 			}
 
@@ -197,6 +203,7 @@ func (zc *ZkClient) searchTagNameFromParent(parent string, parentLock *DistLock,
 			results = append(results, childResults...)
 		}
 
+		// for wildcards, we will not release parentLock until all children are traversed
 		parentLock.Release()
 
 	default:
@@ -214,6 +221,8 @@ func (zc *ZkClient) searchTagNameFromParent(parent string, parentLock *DistLock,
 				return results, err
 			}
 
+			// Fine-grained Locking: lock-crabbing
+			// release parentLock after childLock is acquired
 			childLock.Acquire()
 			parentLock.Release()
 
@@ -229,8 +238,4 @@ func (zc *ZkClient) searchTagNameFromParent(parent string, parentLock *DistLock,
 	}
 
 	return results, err
-}
-
-func getTagNameFromPath(path string) string {
-	return strings.Join(strings.Split(path, "/")[2:], "")
 }
