@@ -21,3 +21,7 @@ func DeleteZkRoot(root string, zkConn *zk.Conn) error {
 
 	return zkConn.Delete(root, -1)
 }
+
+func JoinPath(parent string, childName string) string {
+	return fmt.Sprintf("%s/%s", parent, childName)
+}

@@ -74,6 +74,87 @@ func TestWildCard(t *testing.T) {
 	t.Cleanup(CleanupZk)
 }
 
+func TestAdvancedWildcard(t *testing.T) {
+	client, _ := dmi.CreateZkClient()
+
+	err := client.AddTagName("memorizing")
+	if err != nil {
+		t.Errorf("error while AddTagName, err: %v\n", err)
+	}
+	err = client.AddTagName("meowing")
+	if err != nil {
+		t.Errorf("error while AddTagName, err: %v\n", err)
+	}
+	err = client.AddTagName("meing")
+	if err != nil {
+		t.Errorf("error while AddTagName, err: %v\n", err)
+	}
+	err = client.AddTagName("meng")
+	if err != nil {
+		t.Errorf("error while AddTagName, err: %v\n", err)
+	}
+
+	results, err := client.SearchTagName("me*ing")
+	if err != nil {
+		t.Errorf("error while SearchTagName, err: %v\n", err)
+	}
+	fmt.Println(results)
+	if len(results) != 3 {
+		t.Errorf("wrong result, expect: ['memorizing', 'meowing', 'meing'], actual: %v\n", results)
+	}
+	results, err = client.SearchTagName("*ng")
+	if err != nil {
+		t.Errorf("error while SearchTagName, err: %v\n", err)
+	}
+	fmt.Println(results)
+	if len(results) != 4 {
+		t.Errorf("wrong result, expect: ['memorizing', 'meowing', 'meing', 'meng'], actual: %v\n", results)
+	}
+
+	err = client.AddTagName("abcdefgh")
+	if err != nil {
+		t.Errorf("error while AddTagName, err: %v\n", err)
+	}
+	err = client.AddTagName("abcfkh")
+	if err != nil {
+		t.Errorf("error while AddTagName, err: %v\n", err)
+	}
+	err = client.AddTagName("abfh")
+	if err != nil {
+		t.Errorf("error while AddTagName, err: %v\n", err)
+	}
+	err = client.AddTagName("abfffh")
+	if err != nil {
+		t.Errorf("error while AddTagName, err: %v\n", err)
+	}
+	err = client.AddTagName("abfaah")
+	if err != nil {
+		t.Errorf("error while AddTagName, err: %v\n", err)
+	}
+
+	results, err = client.SearchTagName("ab*f?h")
+	if err != nil {
+		t.Errorf("error while SearchTagName, err: %v\n", err)
+	}
+
+	fmt.Println(results)
+	if len(results) != 3 {
+		t.Errorf("wrong result, expect: ['abcfkh', 'abcdefgh', 'abfffh'], actual: %v\n", results)
+	}
+
+	results, err = client.SearchTagName("ab???h")
+	if err != nil {
+		t.Errorf("error while SearchTagName, err: %v\n", err)
+	}
+
+	fmt.Println(results)
+	if len(results) != 3 {
+		t.Errorf("wrong result, expect: ['abcfkh', 'abfaah', 'abfffh'], actual: %v\n", results)
+	}
+
+	t.Cleanup(CleanupZk)
+}
+
 func TestConcurrentAdd(t *testing.T) {
 	numClients := 10
 	tagNames := [10]string{"abc", "acd", "bde", "bdf", "aba", "abc", "bac", "cef", "caf", "def"}
@@ -95,7 +176,7 @@ func TestConcurrentAdd(t *testing.T) {
 	wg.Wait()
 
 	zc, _ := dmi.CreateZkClient()
-	allTagNames, err := zc.SearchAllTagName(dmi.TagNameTriePath, nil)
+	allTagNames, err := zc.SearchTagName("*") // get all tagNames
 	if err != nil {
 		t.Error(err)
 	}
