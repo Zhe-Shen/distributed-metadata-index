@@ -9,8 +9,8 @@ import (
 	"github.com/go-zookeeper/zk"
 )
 
-const lockParent = "/lock"
-const lockPrefix = "/lock-"
+const lockParentNode = "lock"
+const lockPrefix = "lock-"
 
 // DistLock is a distributed lock that can be initialized with a root Zookeeper
 // path and a Zookeeper connection. It can write, via the Zookeeper connection,
@@ -27,7 +27,7 @@ type DistLock struct {
 
 // CreateDistLock creates a distributed lock
 func CreateDistLock(root string, zkConn *zk.Conn) (*DistLock, error) {
-	_, err := zkConn.Create(fmt.Sprintf("%s%s", root, lockParent), nil, 0, zk.WorldACL(zk.PermAll))
+	_, err := zkConn.Create(JoinPath(root, lockParentNode), nil, 0, zk.WorldACL(zk.PermAll))
 	if err != nil && err.Error() != "zk: node already exists" {
 		fmt.Println(err)
 		return nil, err
@@ -60,7 +60,7 @@ func (d *DistLock) Acquire() (err error) {
 
 	// 1. Call Create() with a pathname of "<lock-root>/lock-" and the sequence and ephemeral flags set.
 	curPath, err := d.zkConn.Create(
-		fmt.Sprintf("%s%s%s", d.root, lockParent, lockPrefix),
+		JoinPath(d.root, lockParentNode, lockPrefix),
 		nil,
 		zk.FlagSequence|zk.FlagEphemeral,
 		zk.WorldACL(zk.PermAll),
@@ -76,7 +76,7 @@ func (d *DistLock) Acquire() (err error) {
 	}
 	for {
 		// 2. Call Children() on the lock node without setting the watch flag.
-		children, _, err := d.zkConn.Children(fmt.Sprintf("%s%s", d.root, lockParent))
+		children, _, err := d.zkConn.Children(JoinPath(d.root, lockParentNode))
 		if err != nil {
 			return err
 		}
@@ -101,7 +101,7 @@ func (d *DistLock) Acquire() (err error) {
 
 		// 4. The client calls Exists() with the watch flag set on the path in the lock directory
 		//    with the next lowest sequence number
-		exists, _, ech, err := d.zkConn.ExistsW(createZkPathFromSeqNum(fmt.Sprintf("%s%s%s", d.root, lockParent, lockPrefix), minSeq))
+		exists, _, ech, err := d.zkConn.ExistsW(createZkPathFromSeqNum(JoinPath(d.root, lockParentNode, lockPrefix), minSeq))
 		if err != nil {
 			return err
 		}
