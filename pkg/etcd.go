@@ -56,3 +56,19 @@ func GetIndex(tagName string) ([]byte, error) {
 	}
 	return res, nil
 }
+
+// DeleteAll deletes all key-value pairs in etcd
+func DeleteAll() error {
+	cli, err := CreateClient()
+	if err != nil {
+		return err
+	}
+	defer cli.Close()
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	_, err = cli.Delete(ctx, string(0), clientv3.WithRange(string(255)))
+	if err != nil {
+		return err
+	}
+	return nil
+}
