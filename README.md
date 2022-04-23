@@ -22,6 +22,13 @@ Install [docker](https://docs.docker.com/get-docker/)
 
 Run `docker-compose -f zk_stack.yml up`
 
+### distributed-metadata-index command-line install
+
+```
+cd ./cmd/dmi
+go build
+```
+
 ## Features
 
 ### Regular Expression Searches
