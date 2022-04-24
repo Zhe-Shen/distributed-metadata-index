@@ -13,7 +13,7 @@ func main() {
 	debugMode := true
 	tagNameList := []string{"cpu", "region", "operationName", "resultType", "level", "resourceId"}
 	// the number of data to be generated
-	sizeOfData := 100
+	sizeOfData := 100000
 
 	cpu := []string{"Intel", "AMD"}
 	region := []string{"EastUS1", "EastUS2", "WestUS1", "WestUS2", "NorthCentralUS", "CentralUS", "SouthCentralUS", "WestCentralUS", "BrazilSouth", "CanadaCentral", "ChinaEast2", "EastAsia", "SoutheastAsia", "CentralIndia", "AustraliaEast", "AustraliaSoutheast", "NorthEurope", "WestEurope", "FranceCentral"}
@@ -29,8 +29,8 @@ func main() {
 	tagMap["operationName"] = operation
 	tagMap["resultType"] = resultType
 	tagMap["level"] = level
-
-	file, err := os.Create("output.txt")
+	fileName := "output_" + strconv.Itoa(sizeOfData) + ".txt"
+	file, err := os.Create(fileName)
 	check(err)
 
 	for i := 0; i < sizeOfData; i++ {
