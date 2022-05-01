@@ -69,8 +69,8 @@ func CLI(client *dmi.ZkClient) {
 				fmt.Errorf("error while SearchTagName, err: %v\n", err)
 			}
 
-			fmt.Printf("%-18s %-18s %-38s\n", "tagName", "prefix", "data")
-			fmt.Printf("%-18s %-18s %-38s\n", "-------", "------", "----")
+			fmt.Printf("%-18s %-18s %-38s\n", "tagName", "tagValue", "nodeLists")
+			fmt.Printf("%-18s %-18s %-38s\n", "-------", "--------", "---------")
 
 			for _, v := range results {
 				treeb, err := dmi.GetIndex(v)
@@ -83,7 +83,7 @@ func CLI(client *dmi.ZkClient) {
 				data, err := treed.FindAllMatchedNodes(tagValue)
 
 				for _, nodePair := range data {
-					fmt.Printf("%-18s %-18s %-8v\n", v, tagValue, nodePair)
+					fmt.Printf("%-18s %-18s %-8v\n", v, nodePair.GetStr(), nodePair.GetNodeList())
 				}
 
 				//fmt.Printf("%-18s %-18s %-8v\n", v, tagValue, data)
