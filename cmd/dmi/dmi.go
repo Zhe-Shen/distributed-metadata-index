@@ -8,6 +8,7 @@ import (
 	"github.com/abiosoft/ishell"
 	"os"
 	"strings"
+	"time"
 )
 
 type Client struct {
@@ -53,6 +54,8 @@ func CLI(client *dmi.ZkClient) {
 	shell.AddCmd(&ishell.Cmd{
 		Name: "s",
 		Func: func(c *ishell.Context) {
+			timeBefore := time.Now()
+
 			if len(c.Args) != 1 {
 				c.Println("syntax error (usage: s	[regex])")
 				return
@@ -66,8 +69,8 @@ func CLI(client *dmi.ZkClient) {
 				fmt.Errorf("error while SearchTagName, err: %v\n", err)
 			}
 
-			fmt.Printf("%-18s %-18s %-8s %s\n", "tagName", "prefix", "data", "error")
-			fmt.Printf("%-18s %-18s %-8s %s\n", "-------", "------", "----", "-----")
+			fmt.Printf("%-18s %-18s %-38s\n", "tagName", "prefix", "data")
+			fmt.Printf("%-18s %-18s %-38s\n", "-------", "------", "----")
 
 			for _, v := range results {
 				treeb, err := dmi.GetIndex(v)
@@ -78,8 +81,15 @@ func CLI(client *dmi.ZkClient) {
 				treed := dmi.DecodeBytesToTagValueIndex(treeb)
 
 				data, err := treed.FindAllMatchedNodes(tagValue)
-				fmt.Printf("%-18s %-18s %-8v %v\n", v, tagValue, data, err)
+
+				for _, nodePair := range data {
+					fmt.Printf("%-18s %-18s %-8v\n", v, tagValue, nodePair)
+				}
+
+				//fmt.Printf("%-18s %-18s %-8v\n", v, tagValue, data)
 			}
+
+			fmt.Printf("This search uses time: %d milliseconds\n", time.Now().Sub(timeBefore).Milliseconds())
 		},
 	})
 
@@ -145,5 +155,5 @@ func check(e error) {
 
 func printHelp(shell *ishell.Shell) {
 	shell.Println("Commands:")
-	shell.Println("search <regex>                       - return something")
+	shell.Println("s <regex>                       - return something")
 }
