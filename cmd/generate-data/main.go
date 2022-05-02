@@ -15,6 +15,8 @@ func main() {
 	// the number of data to be generated
 	sizeOfData := 100000
 
+	rand.Seed(88)
+
 	cpu := []string{"Intel", "AMD"}
 	region := []string{"EastUS1", "EastUS2", "WestUS1", "WestUS2", "NorthCentralUS", "CentralUS", "SouthCentralUS", "WestCentralUS", "BrazilSouth", "CanadaCentral", "ChinaEast2", "EastAsia", "SoutheastAsia", "CentralIndia", "AustraliaEast", "AustraliaSoutheast", "NorthEurope", "WestEurope", "FranceCentral"}
 	operation := []string{"Create", "Read", "Update", "Delete"}
