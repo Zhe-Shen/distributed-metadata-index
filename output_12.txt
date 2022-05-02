@@ -1,0 +1,12 @@
+cpu=AMD,region=AustraliaEast,operationName=Delete,resultType=A,level=5,resourceId=1318,abfeqgmr=ceo
+cpu=Intel,region=AustraliaSoutheast,operationName=Read,resultType=D,level=6,resourceId=6831,eeefhioo=bfd
+cpu=Intel,region=NorthCentralUS,operationName=Delete,resultType=G,level=9,resourceId=8510,abefehqy=act
+cpu=AMD,region=SouthCentralUS,operationName=Read,resultType=G,level=9,resourceId=2002,aefgkyxq=bbt
+cpu=AMD,region=ChinaEast2,operationName=Create,resultType=F,level=6,resourceId=6137,cdfsgujq=bkf
+cpu=Intel,region=FranceCentral,operationName=Create,resultType=G,level=9,resourceId=7839,cbfdvhir=cec
+cpu=AMD,region=AustraliaEast,operationName=Update,resultType=D,level=9,resourceId=440,cefehigv=cow
+cpu=AMD,region=WestUS1,operationName=Create,resultType=C,level=1,resourceId=1092,bbihxfwn=acf
+cpu=AMD,region=WestEurope,operationName=Update,resultType=C,level=8,resourceId=2632,accgeihq=zcd
+cpu=AMD,region=ChinaEast2,operationName=Delete,resultType=F,level=1,resourceId=8662,acffffkl=bcc
+cpu=Intel,region=CanadaCentral,operationName=Update,resultType=F,level=3,resourceId=8151,cnrghhvo=bbe
+cpu=Intel,region=SoutheastAsia,operationName=Update,resultType=C,level=7,resourceId=4658,ebxggfyx=ddy

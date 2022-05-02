@@ -46,18 +46,46 @@ func main() {
 		}
 		// resourceId: 1~5 digit number
 		resourceId := rand.Intn(10000)
-		resourceIdVal := "resourceId=" + strconv.Itoa(resourceId)
+		resourceIdVal := "resourceId=" + strconv.Itoa(resourceId) + ","
 		sb.WriteString(resourceIdVal)
+
+		// append the prefix string tag pair
+		tagKey := getPrefixStr(8)
+		tagVal := getPrefixStr(3)
+		sb.WriteString(tagKey + "=" + tagVal)
+
 		sb.WriteString("\n")
+
 		if debugMode {
 			fmt.Println(sb.String())
 		}
+
 		// Write the generated tag info to the txt file
 		_, err := file.WriteString(sb.String())
 		check(err)
 	}
 	defer file.Close()
 }
+
+func getPrefixStr(lengthOfString int) string {
+	alphabet := "abcdefghijklmnopqrstuvwxyz"
+	var sb strings.Builder
+	initalProb := 9
+	for i := 0; i < lengthOfString; i++ {
+		subString := ""
+		num := rand.Intn(10)
+		if num < initalProb {
+			subString = alphabet[i : i+4]
+		} else {
+			subString = alphabet[i+4:]
+		}
+		randIdx := rand.Intn(len(subString))
+		sb.WriteString(string(subString[randIdx]))
+		initalProb -= 1
+	}
+	return sb.String()
+}
+
 func check(e error) {
 	if e != nil {
 		panic(e)
