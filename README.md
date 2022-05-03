@@ -2,8 +2,6 @@
 
 CS2270 Final Project
 
-Current version is a simple implementation: Linear search each key-value pair in etcd.
-
 ## Setup
 
 ### etcd cluster setup
