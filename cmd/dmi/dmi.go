@@ -85,8 +85,46 @@ func CLI(client *dmi.ZkClient) {
 				for _, nodePair := range data {
 					fmt.Printf("%-18s %-18s %-8v\n", v, nodePair.GetStr(), nodePair.GetNodeList())
 				}
+			}
 
-				//fmt.Printf("%-18s %-18s %-8v\n", v, tagValue, data)
+			fmt.Printf("This search uses time: %d milliseconds\n", time.Now().Sub(timeBefore).Milliseconds())
+		},
+	})
+
+	shell.AddCmd(&ishell.Cmd{
+		Name: "search",
+		Func: func(c *ishell.Context) {
+			timeBefore := time.Now()
+
+			if len(c.Args) != 1 {
+				c.Println("syntax error (usage: s	[regex])")
+				return
+			}
+			regex := c.Args[0]
+			tmp := strings.Split(regex, "=")
+			tagKey := tmp[0]
+			tagValue := tmp[1]
+			results, err := client.SearchTagName(tagKey)
+			if err != nil {
+				fmt.Errorf("error while SearchTagName, err: %v\n", err)
+			}
+
+			fmt.Printf("%-18s %-18s %-38s\n", "tagName", "tagValue", "nodeLists")
+			fmt.Printf("%-18s %-18s %-38s\n", "-------", "--------", "---------")
+
+			for _, v := range results {
+				treeb, err := dmi.GetIndex(v)
+				if err != nil {
+					fmt.Errorf(err.Error())
+				}
+				// convert bytes to TagValueIndex
+				treed := dmi.DecodeBytesToTagValueIndex(treeb)
+
+				data, err := treed.FindAllMatchedNodes(tagValue)
+
+				for _, nodePair := range data {
+					fmt.Printf("%-18s %-18s %-8v\n", v, nodePair.GetStr(), nodePair.GetNodeList())
+				}
 			}
 
 			fmt.Printf("This search uses time: %d milliseconds\n", time.Now().Sub(timeBefore).Milliseconds())
@@ -95,6 +133,14 @@ func CLI(client *dmi.ZkClient) {
 
 	shell.AddCmd(&ishell.Cmd{
 		Name: "q",
+		Func: func(c *ishell.Context) {
+			dmi.DeleteAll()
+			shell.Close()
+		},
+	})
+
+	shell.AddCmd(&ishell.Cmd{
+		Name: "quit",
 		Func: func(c *ishell.Context) {
 			dmi.DeleteAll()
 			shell.Close()
@@ -155,5 +201,8 @@ func check(e error) {
 
 func printHelp(shell *ishell.Shell) {
 	shell.Println("Commands:")
-	shell.Println("s <regex>                       - return something")
+	shell.Println("s <regex>                       - return search answer")
+	shell.Println("search <regex>                  - return search answer")
+	shell.Println("q, quit                         - quit the program")
+	shell.Println("h, help                         - print out help")
 }
