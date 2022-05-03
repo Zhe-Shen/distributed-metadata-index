@@ -5,6 +5,7 @@ import (
 	"encoding/gob"
 	"log"
 	"sort"
+	"strconv"
 )
 
 type TagValueIndex struct {
@@ -22,6 +23,18 @@ type Node struct {
 type TagNodePair struct {
 	str      string
 	nodeList []uint32
+}
+
+func (t *TagNodePair) GetStr() string {
+	return t.str
+}
+
+func (t *TagNodePair) GetNodeList() string {
+	var ret string
+	for _, v := range t.nodeList {
+		ret += strconv.Itoa(int(v)) + ", "
+	}
+	return ret[:len(ret)-2]
 }
 
 // New returns an empty prefix Tree.
